@@ -2,14 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>so, so many </title>
+  <title>so, so many ;)</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css">
   <link rel="stylesheet" href="./css/styles.css">
 </head>
 <body>
   
   <header>
-    <h1 class="title">&hearts; So many dates 4 you! &hearts;</h1>
+    <h1 class="title"><a href="#">&hearts; So many dates 4 you! &hearts;</a></h1>
   </header>
   
   <nav>
@@ -25,32 +25,43 @@
       <li>Terms & Conditions</li>
       <li>Safety Tips</li>
       <li>Success Stories</li>
-      <li>Privacy</li>
+      <li>Privacy Policy</li>
     </ul>
   </footer>
 
   <script type="text/template" id="single-view_templ" >
+  <% var currentI = initialI;  %>
+  <% console.log(currentI) %>
+
+  <% if (currentI) { %> 
+    <a class="left-arrow" href="#profile/<%= bbModList[currentI - 1].get('bioguide_id') %>"> &lt; </a>
+  <% } %>
+
+  <% if (currentI + 1 < bbModList.length ) { %> 
+    <a class="right-arrow" href="#profile/<%= bbModList[currentI + 1].get('bioguide_id') %>"> &gt; </a>
+  <% } %>
+
 
     <div class="single-profile">
        <div class="main">
-         <img src="http://flathash.com/<%= bbMod.get('bioguide_id')%>" />
-         <h4> &hearts; <%= bbMod.get('district') %>  </h4>
+         <img src="http://flathash.com/<%= bbModList[currentI].get('bioguide_id')%>" />
+         <h4> &hearts; <%= bbModList[currentI].get('district') %>  </h4>
        </div>
-    <div class="details">
-         <h3><%= bbMod.get('first_name') %>  </h3>
+      <div class="details">
+         <h3><%= bbModList[currentI].get('first_name') %>  </h3>
 
-         <h6>Age:</h6>
-         <p> <%= bbMod.get('birthday') %> </p>
+         <h6>D.O.B:</h6>
+         <p> <%= bbModList[currentI].get('birthday') %> </p>
          <h6>Address:</h6>
-         <p>  <%= bbMod.get('office') %>  </p>
+         <p>  <%= bbModList[currentI].get('office') %>  </p>
          <h6>Originally From:</h6>
-         <p>  <%= bbMod.get('state') %>  </p>
+         <p>  <%= bbModList[currentI].get('state_name') %>  </p>
          <h6>Member Since:</h6>
-         <p>  <%= bbMod.get('term_start') %>  </p>
-         <h6>For a good time:</h6>
-         <p>  <%= bbMod.get('oc_email') %>  </p>
+         <p>  <%= bbModList[currentI].get('term_start') %>  </p>
+         <h6>Get in Touch:</h6>
+         <p>  <%= bbModList[currentI].get('oc_email') %>  <br/>| <%= bbModList[currentI].get('phone') %> |  </p>
          <h6>[R]elaxed or [D]emanding:</h6>
-         <p> <%= bbMod.get('party') %>  </p>
+         <p> <%= bbModList[currentI].get('party') %>  </p>
       </div>
     </div>
 

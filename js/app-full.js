@@ -15,7 +15,6 @@ var ProfileModel = Backbone.Model.extend({
   },
 
   parse: function(respData){
-    console.log(respData)
 
     var parsed = respData
 
@@ -45,23 +44,24 @@ var ProfileCollection = Backbone.Collection.extend({
 var ProfileSingleView = Backbone.View.extend({
   el: '#container',
 
-  _buildTemplate: function(aModel){
+  _buildTemplate: function(aCollection, dex){
     var htmlStr = document.querySelector('#single-view_templ').innerHTML
-    console.log(htmlStr)
-    var compiled = _.template(htmlStr)({bbMod: aModel})
-    console.log(compiled)
+    var compiled = _.template(htmlStr)({bbModList: aCollection.models, initialI: dex })
     return compiled
   },
 
-  initialize: function(m){
-    this.model = m
-    this.model.on('change', this.render.bind(this) )
+  initialize: function(c, i){
+    console.log(c)
+    this.coll = c
+    // send default index at 0...unless sth else is specifed
+    this.coll.on('sync', this.render.bind(this, 0) )
   },
 
-  render: function(){
-    console.log('rendering:;;;;')
-    console.log(this.el)
-    this.el.innerHTML = this._buildTemplate(this.model)
+  render: function(i){
+    console.log('rendering:single')
+    var index = 0
+    if (i) {index = i}
+    this.el.innerHTML = this._buildTemplate(this.coll, index)
     return this
   }
 })
@@ -81,7 +81,6 @@ var ProfileMultiView = Backbone.View.extend({
 
   initialize: function(collectionPls){
     this.coll = collectionPls
-    console.log(this.coll)
     this.coll.on("sync", this.render.bind(this) )
   },
 
@@ -97,11 +96,11 @@ var ProfileMultiView = Backbone.View.extend({
       htmlStr +=   '</h5>'
       htmlStr += '</div>'
     }
-    console.log(htmlStr)
     return htmlStr
   },
 
   render: function(){
+    console.log('rendering:multi')
     this.el.innerHTML = this._buildTemplate(this.coll)
     return this
   }
@@ -150,27 +149,36 @@ var AppRouter = Backbone.Router.extend({
 
   showProfiles: function(){
     console.log('home page routing!')
-    
-    var datersCollection = new ProfileCollection();
-    var manyDatersView = new ProfileMultiView(datersCollection)
+    this.datersCollection = new ProfileCollection();
+    var manyDatersView = new ProfileMultiView(this.datersCollection)
  
-    datersCollection.fetch()
+    this.datersCollection.fetch()
   },
 
   showSingle: function(bioId){
     console.log('single')
-    var singleDater = new ProfileModel()
-    var singleDaterView = new ProfileSingleView(singleDater)
-    singleDater.url("bioguide_id="+bioId)
-    singleDater.fetch()
+
+    // collection doesn't exist or only has one value on it...
+    if ( !this.datersCollection || this.datersCollection.models.length === 1){
+      this.datersCollection = new ProfileCollection()
+      this.datersCollection.url("bioguide_id="+bioId)
+      this.datersCollection.fetch()
+      var singleDaterView = new ProfileSingleView(this.datersCollection)
+
+    } else {
+      var i = this.datersCollection.findIndex({bioguide_id: bioId})
+      var singleDaterViewWithMany = new ProfileSingleView(this.datersCollection )
+      singleDaterViewWithMany.render(i)
+    }
+    
   },
 
   showProfilesByState: function(stateName){
     console.log(stateName)
-    var datersCollection = new ProfileCollection()
-    var manyDatersView = new ProfileMultiView(datersCollection)
-    datersCollection.url( 'state='+stateName.toUpperCase() )
-    datersCollection.fetch()
+    this.datersCollection = new ProfileCollection()
+    var manyDatersView = new ProfileMultiView(this.datersCollection)
+    this.datersCollection.url( 'state='+stateName.toUpperCase() )
+    this.datersCollection.fetch()
   },
 
   initialize: function(){

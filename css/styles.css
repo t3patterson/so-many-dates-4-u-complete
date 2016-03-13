@@ -10,8 +10,9 @@ header, #container, nav, footer{
   margin: 0 auto;
 }
 
-#container{ 
-padding: 20px;
+#container{
+  position: relative;
+  padding: 20px;
 }
 
 header{
@@ -27,6 +28,11 @@ h1.title{
   font-family: 'Zapf Chancery', cursive;
 }
 
+.title a {
+  text-decoration: none;
+  color: rgba(255,192,203,1);
+}
+
 nav {
   background: rgba(255,192,203,1); 
   text-align: right;
@@ -36,11 +42,17 @@ nav {
 
 nav input[type=text]{
   display: inline-block;
+  width: 220px;
+  color:  rgba(150, 40, 27, 1.0);
   line-height: 24px;
   border: 0px;
   border-radius: 0px;
   background: rgba(255,255,255,0);
-  border-bottom:  rgba(150, 40, 27, 1.0) 1px solid;
+  border-bottom:  rgba(150, 40, 27, .3) 2px solid;
+  transition: all .04s;
+  font-size: 18px;
+  padding: 3px 10px;
+  text-align: center;
 }
 
 nav input[type=text]:focus{
@@ -48,7 +60,7 @@ nav input[type=text]:focus{
   line-height: 24px;
   border: 0px;
   background: rgba(255,255,255,0);
-  border-bottom:  rgba(150, 40, 27, 1.0) 1px solid;
+  border-bottom:  rgba(150, 40, 27, .3) 4px solid;
 }
 
 .profile-card{
@@ -102,14 +114,48 @@ h5 small {
 }
 
 .single-profile {
+  position: relative;
   padding: 25px;
   border: 10px solid rgba(150, 40, 27, 1.0);
 }
 
+a.left-arrow,
+a.right-arrow {
+  display: block;
+  position: absolute;
+  top: 0;
+  width: 45px;
+  height: 45px;
+  line-height: 40px;
+  font-size: 30px;
+  background: pink;
+  text-align: center;
+  cursor: pointer;
+  z-index: 5;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 50%;
+}
+a.left-arrow:hover,
+a.right-arrow:hover{
+  background: #D64541;
+  opacity: .8;
+} 
+
+a.left-arrow{
+  left: 0px;
+}
+
+a.right-arrow{
+  right: 0px;
+}
+
+
+
 .single-profile .main img {
   display: block;
   width: 55%;
-  margin: 0 auto;
+  margin: 10px auto;
 }
 
 .single-profile .main h4 {
