@@ -5,7 +5,7 @@
 ul {
   margin: 0;
 }
-header, #container, nav, footer{
+body > *{
   max-width: 900px;
   margin: 0 auto;
 }
@@ -163,8 +163,18 @@ a.right-arrow{
   margin: 0 auto;
   color: rgba(215,152,193,1);
   text-align: center;
+}
+
+.single-profile .main button {
+  display: block;
+  margin: 0 auto;
+  background: rgba(215,152,193,1);
+  text-align: center;
+  color: #fff;
+  font-size: 20px;
 
 }
+
 
 .single-profile .details  h3 {
   text-align: center;
@@ -194,6 +204,39 @@ footer li {
   display: inline-block;
   padding: 15px;
   color: #ddd;
+}
+
+#current-favs {
+  max-width: none;
+  position: fixed;
+  width: 100%;
+  bottom: 0px;
+  right: 0px;
+  text-align: right;
+  background: rgba(215,152,193,.5);
+}
+#current-favs > *{
+  display: inline-block;
+  border: 2px rgba(150, 40, 27, 1.0) solid;
+  padding: 0 15px;
+  margin-left: 5px ;
+  background: #fff;
+
+}
+
+.fav img {
+  display: block;
+  width: 40px;
+  height: 40px;
+  margin: 5px auto;
+}
+
+.fav h6{
+  text-align: center;
+  margin: 0 -15px;
+  background: rgba(150, 40, 27, 1.0);
+  color: #fff;
+  font-weight: 700;
 }
 
 @media screen and (min-width: 700px){

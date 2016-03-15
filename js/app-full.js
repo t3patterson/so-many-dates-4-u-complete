@@ -1,38 +1,21 @@
 var container_el = document.querySelector('#container')
 
 var ProfileModel = Backbone.Model.extend({
-
-  url: function(moreParams){
-    var apiKeyParam = "apikey=7ba96d266cc84b168fab4d878d9aa141"; 
-    
-    var queryParams =  apiKeyParam 
-    if ( moreParams ) { queryParams += '&' + moreParams}
-
-    var fullUrl = "http://congress.api.sunlightfoundation.com/legislators?" + queryParams
-
-    this.url = fullUrl
-    return fullUrl
-  },
-
-  parse: function(respData){
-
-    var parsed = respData
-
-    if(respData.results && respData.results.length === 1){
-      parsed = respData.results[0]
-    }
-    return parsed
-  },
-
-  initialize: function(){
-  }
 })
 
 var ProfileCollection = Backbone.Collection.extend({
   model: ProfileModel,
 
   url: function(masParams){
-    return this.model.prototype.url.call(this, masParams)
+    var apiKeyParam = "apikey=7ba96d266cc84b168fab4d878d9aa141"; 
+    
+    var queryParams =  apiKeyParam 
+    if ( masParams ) { queryParams += '&' + masParams}
+
+    var fullUrl = "http://congress.api.sunlightfoundation.com/legislators?" + queryParams
+
+    this.url = fullUrl
+    return fullUrl  
   },
 
   parse: function(d){
@@ -44,6 +27,18 @@ var ProfileCollection = Backbone.Collection.extend({
 var ProfileSingleView = Backbone.View.extend({
   el: '#container',
 
+
+  events: {
+    "click button" : "_addMe",
+  },
+
+  _addMe: function(e){
+    console.log('event sent')
+    console.log(e.target.dataset['bio'])
+    var payload = this.coll.where({ bioguide_id: e.target.dataset['bio'] })
+    Backbone.Events.trigger( "newFav", payload[0])
+  },
+
   _buildTemplate: function(aCollection, dex){
     var htmlStr = document.querySelector('#single-view_templ').innerHTML
     var compiled = _.template(htmlStr)({bbModList: aCollection.models, initialI: dex })
@@ -54,14 +49,19 @@ var ProfileSingleView = Backbone.View.extend({
     console.log(c)
     this.coll = c
     // send default index at 0...unless sth else is specifed
-    this.coll.on('sync', this.render.bind(this, 0) )
+    this._currentIndex = 0
+    this.coll.on('sync', this.render.bind(this, this._currentIndex))
+    this.on('')
   },
 
   render: function(i){
     console.log('rendering:single')
-    var index = 0
-    if (i) {index = i}
-    this.el.innerHTML = this._buildTemplate(this.coll, index)
+    console.log(this.coll)
+    if (i) {this._currentIndex = i}
+    console.log(this._currentIndex)
+    console.log(this.el)
+    console.log(this)
+    this.el.innerHTML = this._buildTemplate(this.coll, this._currentIndex)
     return this
   }
 })
@@ -76,11 +76,12 @@ var ProfileMultiView = Backbone.View.extend({
   },
 
   handleProfileSelect: function(e){
-    window.location.hash = "/profile/"+e.currentTarget.id
+    window.location.hash = "profile/"+e.currentTarget.id
   },
 
   initialize: function(collectionPls){
     this.coll = collectionPls
+    console.log(this.coll)
     this.coll.on("sync", this.render.bind(this) )
   },
 
@@ -140,6 +141,32 @@ var NavView = Backbone.View.extend({
   }
 })
 
+var FavsView = Backbone.View.extend({
+  el: "#current-favs",
+  _favsModels : [],
+  _buildTemplate : function(models){
+    var htmlTemplate = document.querySelector('#favs-view_templ').innerHTML
+    return _.template(htmlTemplate)({favsList: models})
+  },
+
+  initialize: function(){
+    Backbone.Events.on("newFav", function(payload){
+      console.log("new FAVV!!")
+      // if favsModels has payload.cid, do this:
+          this._favsModels.push(payload)
+          this.render()
+    }.bind(this))
+  },
+
+  render: function(){
+    console.log(this._favsModels)
+    this.el.innerHTML = this._buildTemplate(this._favsModels)
+    return this
+  }
+
+})
+
+
 var AppRouter = Backbone.Router.extend({
   routes: {
     "profile/:id" : "showSingle",
@@ -150,25 +177,38 @@ var AppRouter = Backbone.Router.extend({
   showProfiles: function(){
     console.log('home page routing!')
     this.datersCollection = new ProfileCollection();
-    var manyDatersView = new ProfileMultiView(this.datersCollection)
- 
+    this.manyDatersView = new ProfileMultiView(this.datersCollection)
     this.datersCollection.fetch()
   },
 
   showSingle: function(bioId){
-    console.log('single')
+    console.log('single will be shown!')
 
     // collection doesn't exist or only has one value on it...
-    if ( !this.datersCollection || this.datersCollection.models.length === 1){
+    if ( !this.datersCollection /*|| this.datersCollection.models.length === 1*/){
+      
+      //...then we want to create a new profile-collection and fetch the bio-id from the route
+      console.log('no daters or ln is 1')
       this.datersCollection = new ProfileCollection()
       this.datersCollection.url("bioguide_id="+bioId)
       this.datersCollection.fetch()
-      var singleDaterView = new ProfileSingleView(this.datersCollection)
+      this.singleDaterView = new ProfileSingleView(this.datersCollection)
 
     } else {
+      console.log('so many daters already here')
+      console.log(this.datersCollection)
       var i = this.datersCollection.findIndex({bioguide_id: bioId})
-      var singleDaterViewWithMany = new ProfileSingleView(this.datersCollection )
-      singleDaterViewWithMany.render(i)
+
+      // it is a good idea to put the view-instance on the router so that we overwrite
+      //   the view-instance each time the page re-renders (thus not leaving zombie views)
+      if ( this.singleDaterView ) {
+          console.log('singleDaterVIEW! BYE')
+          this.singleDaterView.undelegateEvents();
+          this.singleDaterView = null
+      }
+
+      this.singleDaterView = new ProfileSingleView(this.datersCollection )
+      this.singleDaterView.render(i)
     }
     
   },
@@ -183,8 +223,11 @@ var AppRouter = Backbone.Router.extend({
 
   initialize: function(){
     console.log('router on!')
-    var navBar = new NavView()
-    navBar.render()
+    this.navBar = new NavView();
+    this.favsViewInstance = new FavsView();
+    
+    this.navBar.render()
+    this.favsViewInstance.render()
     Backbone.history.start()
   }
 })

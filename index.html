@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>so, so many ;)</title>
+  <title>so, so many</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css">
   <link rel="stylesheet" href="./css/styles.css">
 </head>
@@ -15,7 +15,7 @@
   <nav>
     
   </nav>
-  
+
   <div id="container">
     
   </div>
@@ -28,6 +28,10 @@
       <li>Privacy Policy</li>
     </ul>
   </footer>
+  
+  <div id="current-favs">
+  
+  </div>
 
   <script type="text/template" id="single-view_templ" >
   <% var currentI = initialI;  %>
@@ -46,6 +50,8 @@
        <div class="main">
          <img src="http://flathash.com/<%= bbModList[currentI].get('bioguide_id')%>" />
          <h4> &hearts; <%= bbModList[currentI].get('district') %>  </h4>
+         <button class="add-to-favs" data-bio=
+         "<%=bbModList[currentI].get('bioguide_id')%>">+</button>
        </div>
       <div class="details">
          <h3><%= bbModList[currentI].get('first_name') %>  </h3>
@@ -65,6 +71,19 @@
       </div>
     </div>
 
+  </script>
+
+  <script type="text/template" id="favs-view_templ">
+
+    <% for (var i = 0; i < favsList.length ; i++){ %>
+      <% var first_name = favsList[i].get('first_name') %> 
+      <% var bioId = favsList[i].get('bioguide_id') %> 
+      
+      <div class="fav">
+        <img src="http://flathash.com/<%=bioId%>" alt="img">
+        <h6><%=first_name%></h6>
+      </div>
+    <% } %>
   </script>
 
   <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
