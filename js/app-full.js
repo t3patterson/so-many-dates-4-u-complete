@@ -153,6 +153,7 @@ var FavsView = Backbone.View.extend({
     Backbone.Events.on("newFav", function(payload){
       console.log("new FAVV!!")
       // if favsModels has payload.cid, do this:
+        console.log(_.favsModels.where )
           this._favsModels.push(payload)
           this.render()
     }.bind(this))
