@@ -19,7 +19,6 @@ var ProfileCollection = Backbone.Collection.extend({
   },
 
   parse: function(d){
-    console.log('parsing collection 4 u')
     return d.results
   }
 })
@@ -55,12 +54,7 @@ var ProfileSingleView = Backbone.View.extend({
   },
 
   render: function(i){
-    console.log('rendering:single')
-    console.log(this.coll)
     if (i) {this._currentIndex = i}
-    console.log(this._currentIndex)
-    console.log(this.el)
-    console.log(this)
     this.el.innerHTML = this._buildTemplate(this.coll, this._currentIndex)
     return this
   }
@@ -151,11 +145,13 @@ var FavsView = Backbone.View.extend({
 
   initialize: function(){
     Backbone.Events.on("newFav", function(payload){
-      console.log("new FAVV!!")
-      // if favsModels has payload.cid, do this:
-        console.log(_.favsModels.where )
-          this._favsModels.push(payload)
-          this.render()
+      // if favsModels doesn't have user, push to favs-list, else pop an alert:
+      if ( !this._favsModels.find(function(m){return m.get('bioguide_id') === payload.get('bioguide_id')}) ){
+        this._favsModels.push(payload)
+        this.render()
+      } else {
+        alert('  already on your favs, silly!')
+      }
     }.bind(this))
   },
 
@@ -176,34 +172,28 @@ var AppRouter = Backbone.Router.extend({
   },
 
   showProfiles: function(){
-    console.log('home page routing!')
     this.datersCollection = new ProfileCollection();
     this.manyDatersView = new ProfileMultiView(this.datersCollection)
     this.datersCollection.fetch()
   },
 
   showSingle: function(bioId){
-    console.log('single will be shown!')
 
     // collection doesn't exist or only has one value on it...
     if ( !this.datersCollection /*|| this.datersCollection.models.length === 1*/){
       
       //...then we want to create a new profile-collection and fetch the bio-id from the route
-      console.log('no daters or ln is 1')
       this.datersCollection = new ProfileCollection()
       this.datersCollection.url("bioguide_id="+bioId)
       this.datersCollection.fetch()
       this.singleDaterView = new ProfileSingleView(this.datersCollection)
 
     } else {
-      console.log('so many daters already here')
-      console.log(this.datersCollection)
       var i = this.datersCollection.findIndex({bioguide_id: bioId})
 
       // it is a good idea to put the view-instance on the router so that we overwrite
       //   the view-instance each time the page re-renders (thus not leaving zombie views)
       if ( this.singleDaterView ) {
-          console.log('singleDaterVIEW! BYE')
           this.singleDaterView.undelegateEvents();
           this.singleDaterView = null
       }
@@ -215,7 +205,6 @@ var AppRouter = Backbone.Router.extend({
   },
 
   showProfilesByState: function(stateName){
-    console.log(stateName)
     this.datersCollection = new ProfileCollection()
     var manyDatersView = new ProfileMultiView(this.datersCollection)
     this.datersCollection.url( 'state='+stateName.toUpperCase() )
@@ -223,7 +212,6 @@ var AppRouter = Backbone.Router.extend({
   },
 
   initialize: function(){
-    console.log('router on!')
     this.navBar = new NavView();
     this.favsViewInstance = new FavsView();
     
