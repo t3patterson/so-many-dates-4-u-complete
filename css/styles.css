@@ -214,6 +214,7 @@ footer li {
   right: 0px;
   text-align: right;
   background: rgba(215,152,193,.5);
+  padding: 5px;
 }
 #current-favs > *{
   display: inline-block;
